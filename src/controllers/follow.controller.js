@@ -69,11 +69,69 @@ async function unfollowUser(req, res) {
 }
 
 async function getPendingRequests(req, res) {
-    
+    const username = req.user.username;
+
+    let requests = await followModel.find({
+        followee: username,
+        status: "pending"
+    })
+
+    res.status(200).json({
+        message: "All pending requests",
+        pending: requests
+    })
+}
+
+async function acceptRequest(req, res) {
+    let followeeUsername = req.user.username
+    let followerUsername = req.params.username
+
+    const request = await followModel.findOne({
+        followee: followeeUsername,
+        follower: followerUsername,
+        status: "pending"
+    })
+
+    if (!request) {
+        return res.status(404).json({
+            message: "Such follow request doesn't exist"
+        })
+    }
+
+    await followModel.findByIdAndUpdate(request._id, { status: "accepted" })
+
+    res.status(200).json({
+        message: `You have accepted the request of ${followerUsername}`
+    })
+}
+
+async function rejectRequest(req, res) {
+    let followeeUsername = req.user.username
+    let followerUsername = req.params.username
+
+    const request = await followModel.findOne({
+        followee: followeeUsername,
+        follower: followerUsername,
+        status: "pending"
+    })
+
+    if (!request) {
+        return res.status(404).json({
+            message: "Such follow request doesn't exist"
+        })
+    }
+
+    await followModel.findByIdAndUpdate(request._id, { status: "rejected" })
+
+    res.status(200).json({
+        message: `You have rejected the request of ${followerUsername}`
+    })
 }
 
 module.exports = {
     followUser,
     unfollowUser,
-    getPendingRequests
+    getPendingRequests,
+    acceptRequest,
+    rejectRequest
 }

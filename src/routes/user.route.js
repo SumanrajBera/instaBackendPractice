@@ -1,6 +1,6 @@
 const express = require("express")
 const identifyUser = require("../middlewares/auth.middleware")
-const { followUser, unfollowUser, getPendingRequests } = require("../controllers/follow.controller")
+const { followUser, unfollowUser, getPendingRequests, acceptRequest, rejectRequest } = require("../controllers/follow.controller")
 const followRouter = express.Router()
 
 /**
@@ -23,5 +23,19 @@ followRouter.post("/unfollow/:username", identifyUser, unfollowUser)
  * @description To get all requests
  */
 followRouter.get("/requests", identifyUser, getPendingRequests)
+
+/**
+ * @route /api/user/accept/:username
+ * @method POST
+ * @description To accept a pending request
+ */
+followRouter.post("/accept/:username", identifyUser, acceptRequest)
+
+/**
+ * @route /api/user/reject/:username
+ * @method POST
+ * @description To reject a pending request
+ */
+followRouter.post("/reject/:username", identifyUser, rejectRequest)
 
 module.exports = followRouter
